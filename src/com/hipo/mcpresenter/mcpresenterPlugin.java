@@ -52,6 +52,10 @@ public class mcpresenterPlugin extends JavaPlugin {
         }
     }
 
+    public static void addPresentation(Presentation presentation) {
+        presentations.add(presentation);
+    }
+
     public static mcpresenterPlugin getPlugin() {
         return plugin;
     }

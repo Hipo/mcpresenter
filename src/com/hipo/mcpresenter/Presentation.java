@@ -3,13 +3,24 @@ package com.hipo.mcpresenter;
 import com.hipo.mcpresenter.file.PresentationFileException;
 import com.hipo.mcpresenter.file.PresentationLoader;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ItemFrame;
+import org.bukkit.inventory.ItemStack;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -18,12 +29,13 @@ import java.util.logging.Level;
  */
 public class Presentation {
 
-    private BufferedImage image;
+    private URL url;
     private String presentationID;
     private UUID worldUUID;
     private int blockX;
     private int blockY;
     private int blockZ;
+    private String blockDirection;
 
     private File presentationFile;
 
@@ -31,22 +43,10 @@ public class Presentation {
     public String getID() {
         return presentationID;
     }
-    public UUID getWorldUUID() {
-        return worldUUID;
-    }
-    public int getBlockX() {
-        return blockX;
-    }
-    public int getBlockY() {
-        return blockY;
-    }
-    public int getBlockZ() {
-        return blockZ;
-    }
 
 
-    public Presentation(BufferedImage image, String presentationID, Block targetBlock) {
-        this.image = image;
+    public Presentation(URL url, String presentationID, Block targetBlock, String direction) {
+        this.url = url;
         this.presentationID = presentationID;
 
         World world = targetBlock.getWorld();
@@ -55,6 +55,7 @@ public class Presentation {
         this.blockX = targetBlock.getX();
         this.blockY = targetBlock.getY();
         this.blockZ = targetBlock.getZ();
+        this.blockDirection = direction;
     }
 
     public Presentation(File file) throws PresentationFileException {
@@ -90,6 +91,13 @@ public class Presentation {
 
         this.blockZ = blockZ;
 
+        String direction = config.getString("direction");
+        if(direction == null) {
+            throw new PresentationFileException("Unable to load presentation file \"" + presentationFile.getName());
+        }
+
+        this.blockDirection = direction;
+
         String worldUUID = config.getString("world_id");
         if(worldUUID == null) {
             throw new PresentationFileException("Unable to load presentation file \"" + presentationFile.getName());
@@ -104,33 +112,111 @@ public class Presentation {
 
         this.presentationID = presentationID;
 
-        String b64Img = config.getString("image");
-        if(b64Img == null) {
+        String url = config.getString("url");
+        if(url == null) {
             throw new PresentationFileException("Unable to load presentation file \"" + presentationFile.getName());
         }
 
         try {
-            this.image = PresentationLoader.base64StringToImg(b64Img);
+            this.url = new URL(url);
         }
-        catch ( Exception ex ) {
+        catch (MalformedURLException ex) {
             throw new PresentationFileException("Unable to load presentation file \"" + presentationFile.getName());
         }
     }
 
-    public void save() {
+    public void generateBlocks() throws PresentationFileException {
+        World world = Bukkit.getWorld(worldUUID);
+        BlockFace blockFace = getBlockFace(blockDirection);
+        Set<ItemFrame> iFrames = new HashSet<ItemFrame>();
+
+        for (int x = 0; x < 10; x++) {
+            for (int y = 0; y < 8; y++) {
+                Location loc = null;
+                Location backLoc = null;
+
+                if(blockDirection.equalsIgnoreCase("north")) {
+                    loc = new Location(world, blockX + x, blockY - y , blockZ + 1);
+                    backLoc = new Location(world, blockX + x, blockY - y , blockZ);
+                }else if(blockDirection.equalsIgnoreCase("south")) {
+                    loc = new Location(world, blockX - x, blockY - y , blockZ - 1);
+                    backLoc = new Location(world, blockX - x, blockY - y , blockZ);
+                }else if(blockDirection.equalsIgnoreCase("east")) {
+                    loc = new Location(world, blockX - 1 , blockY - y , blockZ + x);
+                    backLoc = new Location(world, blockX , blockY - y , blockZ + x);
+                } else if(blockDirection.equalsIgnoreCase("west")) {
+                    loc = new Location(world, blockX + 1, blockY - y , blockZ - x);
+                    backLoc = new Location(world, blockX, blockY - y , blockZ - x);
+                }
+
+                if(loc == null) {
+                    throw new PresentationFileException("Unable to generate location for \"" + presentationID);
+                }
+
+                if(loc.getBlock().getType() != Material.AIR || backLoc.getBlock().getType() == Material.AIR) {
+                    for(ItemFrame iFrame : iFrames) {
+                        iFrame.remove();
+                    }
+
+                    throw new PresentationFileException("Not enough blocks for \"" + presentationID);
+                }
+
+                try {
+                    ItemFrame iFrame = (ItemFrame) world.spawnEntity(loc, EntityType.ITEM_FRAME);
+                    iFrame.setFacingDirection(blockFace);
+
+                    ItemStack iStack = new ItemStack(Material.MAP, 1);
+//                    iStack.setDurability(SketchMapUtils.getMapID(mapView));
+
+                    iFrame.setItem(iStack);
+                    iFrames.add(iFrame);
+                }
+                catch(Exception ex) {
+                    for(ItemFrame iFrame : iFrames) {
+                        iFrame.remove();
+                    }
+
+                    throw new PresentationFileException("Cannot generate blocks for \"" + presentationID);
+                }
+            }
+        }
+    }
+
+    private BlockFace getBlockFace(String direction) {
+        switch(direction) {
+            case "north":
+                return BlockFace.SOUTH;
+            case "south":
+                return BlockFace.NORTH;
+            case "east":
+                return BlockFace.WEST;
+            case "west":
+                return BlockFace.EAST;
+        }
+
+        return BlockFace.NORTH;
+    }
+
+    public void renderImage() {
+        BufferedImage image;
+
+        try {
+            image = ImageIO.read(url);
+        } catch (IOException e) {
+            return;
+        }
+
+
+    }
+
+    public void save() throws IOException {
         if (presentationFile == null) {
             String filePath = PresentationLoader.getPresentationsDirectory() + "/" + presentationID + ".presentation";
 
             presentationFile = new File(filePath);
 
             if (!presentationFile.exists()) {
-                try {
-                    presentationFile.createNewFile();
-                } catch (Exception ex) {
-                    Bukkit.getLogger().log(Level.WARNING,
-                            "[mcpresenter] Unable to create presentation file \"" + presentationID, ex);
-                    return;
-                }
+                presentationFile.createNewFile();
             }
         }
 
@@ -141,14 +227,10 @@ public class Presentation {
         config.set("block_x", blockX);
         config.set("block_y", blockY);
         config.set("block_z", blockZ);
-        config.set("image", PresentationLoader.imgToBase64String(image, "png"));
+        config.set("direction", blockDirection);
+        config.set("url", url.toString());
 
-        try {
-            config.save(presentationFile);
-        } catch (IOException e) {
-            Bukkit.getLogger().log(Level.WARNING,
-                    "[mcpresenter] Unable to save presentation file \"" + presentationID, e);
-        }
+        config.save(presentationFile);
     }
 
     public void delete() {

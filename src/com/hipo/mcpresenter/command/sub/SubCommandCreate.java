@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
 
+import com.hipo.mcpresenter.file.PresentationFileException;
 import com.hipo.mcpresenter.mcpresenterPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -94,30 +95,47 @@ public class SubCommandCreate extends mcpresenterSubCommand {
             return;
         }
 
-        try {
-            player.sendMessage(ChatColor.AQUA + prefix + "Downloading Image");
+        String direction = getPlayerDirection(player);
 
-            BufferedImage image = ImageIO.read(url);
-
-            player.sendMessage(ChatColor.AQUA + prefix + "Processing Image");
-
-            String ext = url.getFile().substring(url.getFile().length() - 3);
-
-            if(!ext.equalsIgnoreCase("png")) {
-                player.sendMessage(ChatColor.RED + prefix + "Sorry, Only PNG files are supported at the moment");
-                return;
-            }
-
-            Presentation presentation = new Presentation(image, presentationID, targetBlock);
-
-            presentation.save();
-
-            player.sendMessage(ChatColor.GREEN + prefix + "Presentation \"" + ChatColor.GOLD
-                    + args[1] + ChatColor.GREEN + "\" created!");
-
-        } catch (IOException e) {
-            player.sendMessage(ChatColor.RED + prefix + "Unable to load image at URL");
+        if(direction == null) {
+            player.sendMessage(ChatColor.RED + prefix + "Could not determine direction!");
             return;
         }
+
+        Presentation presentation = new Presentation(url, presentationID, targetBlock, direction);
+
+        try {
+            presentation.save();
+        }
+        catch (IOException e) {
+            player.sendMessage(ChatColor.RED + prefix + "Could not save presentation!");
+            return;
+        }
+
+        try {
+            presentation.generateBlocks();
+        }
+        catch (PresentationFileException e) {
+            presentation.delete();
+
+            player.sendMessage(ChatColor.RED + prefix + "Could not generate blocks for presentation!");
+            return;
+        }
+
+        mcpresenterPlugin.getPlugin().addPresentation(presentation);
+
+        player.sendMessage(ChatColor.GREEN + prefix + "Presentation \"" + ChatColor.GOLD
+                + presentationID + ChatColor.GREEN + "\" created!");
+    }
+
+
+    private String getPlayerDirection(Player player) {
+        int degrees = (Math.round(player.getLocation().getYaw()) + 270) % 360;
+        if (degrees <= 22) return "west";
+        if (degrees <= 112) return "north";
+        if (degrees <= 202) return "east";
+        if (degrees <= 292) return "south";
+        if (degrees <= 359) return "west";
+        return null;
     }
 }
