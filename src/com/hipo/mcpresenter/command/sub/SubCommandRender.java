@@ -19,7 +19,7 @@ public class SubCommandRender extends mcpresenterSubCommand {
 
     @Override
     public String getPermission() {
-        return "mcpresenterPlugin.render";
+        return "mcpresenter.render";
     }
 
     @Override
@@ -29,10 +29,10 @@ public class SubCommandRender extends mcpresenterSubCommand {
 
     @Override
     public String getSyntax() {
-        return "/mcpresenterPlugin render <presentation-id>";
+        return "/mcpresenter render <presentation-id>";
     }
 
-    /** Command "/mcpresenterPlugin render [PRESENTATION-ID]" **/
+    /** Command "/mcpresenter render [PRESENTATION-ID]" **/
     @Override
     public void onCommand(CommandSender sender, String[] args, String prefix) {
 

@@ -17,6 +17,7 @@ import org.bukkit.map.MapView;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.image.RasterFormatException;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -25,7 +26,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
 
 /**
  * Created by taylan on 2016-10-04.
@@ -169,9 +169,6 @@ public class Presentation {
 
                     iFrame.setFacingDirection(blockFace);
 
-                    ItemStack iStack = new ItemStack(Material.MAP, 1);
-
-                    iFrame.setItem(iStack);
                     iFrames.add(iFrame);
                 }
                 catch(Exception ex) {
@@ -213,12 +210,19 @@ public class Presentation {
         // If empty spaces are created around the image, these need to be filled with black color
 
         World world = Bukkit.getWorld(worldUUID);
-        BlockFace blockFace = getBlockFace(blockDirection);
 
         for (int x = 0; x < 10; x++) {
             for (int y = 0; y < 8; y++) {
                 // We slice the resized image into 128x128 chunks
-                BufferedImage subImage = image.getSubimage(x * 128, y * 128, 128, 128);
+                BufferedImage subImage;
+
+                try {
+                    subImage = image.getSubimage(x * 128, y * 128, 128, 128);
+                }
+                catch (RasterFormatException e) {
+                    throw new PresentationFileException("Unable to extract sub-image at coordinates: " + x + "," + y);
+                }
+
                 MapView mapView = Bukkit.createMap(world);
 
                 mapView.getRenderers().clear();
@@ -246,10 +250,34 @@ public class Presentation {
                     throw new PresentationFileException("Unable to find entities at location");
                 }
 
-                ItemFrame iFrame = (ItemFrame) entities.toArray()[0];
-                ItemStack iStack = iFrame.getItem();
+                ItemFrame iFrame = null;
+
+                if (entities.size() == 1) {
+                    iFrame = (ItemFrame) entities.toArray()[0];
+                } else {
+                    for (Entity entity : entities) {
+                        if (entity.getType() != EntityType.ITEM_FRAME) {
+                            continue;
+                        }
+
+                        Location entityLoc = entity.getLocation();
+
+                        if (!entityLoc.getBlock().getLocation().equals(loc)) {
+                            continue;
+                        }
+
+                        iFrame = (ItemFrame) entity;
+                    }
+                }
+
+                if (iFrame == null) {
+                    throw new PresentationFileException("Unable to find entities at location");
+                }
+
+                ItemStack iStack = new ItemStack(Material.MAP, 1);
 
                 iStack.setDurability(mapView.getId());
+                iFrame.setItem(iStack);
             }
         }
     }
