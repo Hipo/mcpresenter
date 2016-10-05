@@ -1,0 +1,8 @@
+name: mcpresenter
+version: 0.0.1
+author: Taylan Pince
+main: com.hipo.mcpresenter.mcpresenter
+commands:
+  mcpresenter:
+    description: MCPresenter
+    usage: /mcpresenter
