@@ -9,9 +9,11 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.map.MapView;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -19,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -162,11 +165,11 @@ public class Presentation {
                 }
 
                 try {
-                    ItemFrame iFrame = (ItemFrame) world.spawnEntity(loc, EntityType.ITEM_FRAME);
+                    ItemFrame iFrame = (ItemFrame)world.spawnEntity(loc, EntityType.ITEM_FRAME);
+
                     iFrame.setFacingDirection(blockFace);
 
                     ItemStack iStack = new ItemStack(Material.MAP, 1);
-//                    iStack.setDurability(SketchMapUtils.getMapID(mapView));
 
                     iFrame.setItem(iStack);
                     iFrames.add(iFrame);
@@ -197,16 +200,58 @@ public class Presentation {
         return BlockFace.NORTH;
     }
 
-    public void renderImage() {
+    public void renderImage() throws PresentationFileException {
         BufferedImage image;
 
         try {
             image = ImageIO.read(url);
         } catch (IOException e) {
-            return;
+            throw new PresentationFileException("Unable to load image from " + url);
         }
 
+        // TODO: image needs to be resized to 1280x960 here, with aspect ratio being retained
+        // If empty spaces are created around the image, these need to be filled with black color
 
+        World world = Bukkit.getWorld(worldUUID);
+        BlockFace blockFace = getBlockFace(blockDirection);
+
+        for (int x = 0; x < 10; x++) {
+            for (int y = 0; y < 8; y++) {
+                // We slice the resized image into 128x128 chunks
+                BufferedImage subImage = image.getSubimage(x * 128, y * 128, 128, 128);
+                MapView mapView = Bukkit.createMap(world);
+
+                mapView.getRenderers().clear();
+                mapView.addRenderer(new ImageRenderer(subImage));
+
+                Location loc = null;
+
+                if(blockDirection.equalsIgnoreCase("north")) {
+                    loc = new Location(world, blockX + x, blockY - y , blockZ + 1);
+                }else if(blockDirection.equalsIgnoreCase("south")) {
+                    loc = new Location(world, blockX - x, blockY - y , blockZ - 1);
+                }else if(blockDirection.equalsIgnoreCase("east")) {
+                    loc = new Location(world, blockX - 1 , blockY - y , blockZ + x);
+                } else if(blockDirection.equalsIgnoreCase("west")) {
+                    loc = new Location(world, blockX + 1, blockY - y , blockZ - x);
+                }
+
+                if (loc == null) {
+                    throw new PresentationFileException("Unable to find location");
+                }
+
+                Collection<Entity> entities = world.getNearbyEntities(loc, 1, 1, 1);
+
+                if (entities.isEmpty()) {
+                    throw new PresentationFileException("Unable to find entities at location");
+                }
+
+                ItemFrame iFrame = (ItemFrame) entities.toArray()[0];
+                ItemStack iStack = iFrame.getItem();
+
+                iStack.setDurability(mapView.getId());
+            }
+        }
     }
 
     public void save() throws IOException {

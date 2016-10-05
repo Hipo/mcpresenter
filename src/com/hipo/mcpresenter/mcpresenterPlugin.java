@@ -5,7 +5,6 @@ import com.hipo.mcpresenter.command.mcpresenterCommand;
 import com.hipo.mcpresenter.file.PresentationFileException;
 import com.hipo.mcpresenter.file.PresentationLoader;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -26,6 +25,8 @@ public class mcpresenterPlugin extends JavaPlugin {
         plugin = this;
         presentations = new HashSet<Presentation>();
 
+        Bukkit.getLogger().log(Level.WARNING, "[mcpresenter] Plugin online, loading presentations...");
+
         loadPresentations();
 
         this.getCommand("mcpresenter").setExecutor(new mcpresenterCommand());
@@ -41,6 +42,8 @@ public class mcpresenterPlugin extends JavaPlugin {
             if(!file.getName().endsWith(".presentation")) {
                 continue;
             }
+
+            Bukkit.getLogger().log(Level.WARNING, "[mcpresenter] Loading " + file.getName());
 
             try {
                 presentations.add(new Presentation(file));

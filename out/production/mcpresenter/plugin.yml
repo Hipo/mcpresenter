@@ -1,7 +1,7 @@
 name: mcpresenter
 version: 0.0.1
 author: Taylan Pince
-main: com.hipo.mcpresenter.mcpresenter
+main: com.hipo.mcpresenter.mcpresenterPlugin
 commands:
   mcpresenter:
     description: MCPresenter

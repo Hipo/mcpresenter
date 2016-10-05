@@ -70,7 +70,7 @@ public class SubCommandCreate extends mcpresenterSubCommand {
 //            return;
 //        }
 
-        if(mcpresenterPlugin.getPresentationByID(args[1]) != null) {
+        if(mcpresenterPlugin.getPresentationByID(presentationID) != null) {
             player.sendMessage(ChatColor.RED + prefix + "A presentation with that ID already exists.");
             return;
         }
@@ -81,7 +81,7 @@ public class SubCommandCreate extends mcpresenterSubCommand {
             url = new URL(args[2]);
         }
         catch (MalformedURLException ex) {
-            player.sendMessage(ChatColor.RED + prefix + "Unable to load image. URL appears to be invalid");
+            player.sendMessage(ChatColor.RED + prefix + "Unable to load image. URL appears to be invalid. " + ex.getMessage());
             return;
         }
 
@@ -108,7 +108,7 @@ public class SubCommandCreate extends mcpresenterSubCommand {
             presentation.save();
         }
         catch (IOException e) {
-            player.sendMessage(ChatColor.RED + prefix + "Could not save presentation!");
+            player.sendMessage(ChatColor.RED + prefix + "Could not save presentation! " + e.getMessage());
             return;
         }
 
@@ -118,7 +118,7 @@ public class SubCommandCreate extends mcpresenterSubCommand {
         catch (PresentationFileException e) {
             presentation.delete();
 
-            player.sendMessage(ChatColor.RED + prefix + "Could not generate blocks for presentation!");
+            player.sendMessage(ChatColor.RED + prefix + "Could not generate blocks for presentation! " + e.getMessage());
             return;
         }
 

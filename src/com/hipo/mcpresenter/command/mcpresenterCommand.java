@@ -11,6 +11,10 @@ import org.bukkit.entity.Player;
  */
 public class mcpresenterCommand implements CommandExecutor {
 
+    public mcpresenterCommand() {
+        mcpresenterSubCommand.loadCommands();
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String lable,
                              String[] args) {

@@ -2,6 +2,7 @@ package com.hipo.mcpresenter.command;
 
 import com.hipo.mcpresenter.command.sub.SubCommandCreate;
 
+import com.hipo.mcpresenter.command.sub.SubCommandRender;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
@@ -25,12 +26,9 @@ public abstract class mcpresenterSubCommand {
     public static void loadCommands() {
         commands = new ArrayList<mcpresenterSubCommand>();
 
-        loadCommand(new SubCommandCreate());
+        commands.add(new SubCommandCreate());
+        commands.add(new SubCommandRender());
 
-    }
-
-    private static void loadCommand(mcpresenterSubCommand sub) {
-        commands.add(sub);
     }
 
     public static List<mcpresenterSubCommand> getCommands() {
