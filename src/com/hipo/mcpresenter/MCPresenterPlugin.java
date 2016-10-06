@@ -4,6 +4,7 @@ import com.hipo.mcpresenter.command.MCPresenterCommand;
 
 import com.hipo.mcpresenter.file.PresentationFileException;
 import com.hipo.mcpresenter.file.PresentationLoader;
+import com.hipo.mcpresenter.timer.RenderTask;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,6 +21,8 @@ public class MCPresenterPlugin extends JavaPlugin {
     private static MCPresenterPlugin plugin;
     private static Set<Presentation> presentations;
 
+    private static final long INTERVAL = 20 * 60;
+
     @Override
     public void onEnable() {
         plugin = this;
@@ -28,6 +31,8 @@ public class MCPresenterPlugin extends JavaPlugin {
         Bukkit.getLogger().log(Level.WARNING, "[mcpresenter] Plugin online, loading presentations...");
 
         loadPresentations();
+
+        new RenderTask().runTaskTimerAsynchronously(plugin, 100, INTERVAL);
 
         this.getCommand("mcpresenter").setExecutor(new MCPresenterCommand());
     }
@@ -71,6 +76,10 @@ public class MCPresenterPlugin extends JavaPlugin {
         }
 
         return null;
+    }
+
+    public static Set<Presentation> getPresentations() {
+        return presentations;
     }
 
 }
