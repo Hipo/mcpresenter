@@ -4,29 +4,28 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 /**
  * Created by taylan on 2016-10-03.
  */
-public class mcpresenterCommand implements CommandExecutor {
+public class MCPresenterCommand implements CommandExecutor {
 
-    public mcpresenterCommand() {
-        mcpresenterSubCommand.loadCommands();
+    public MCPresenterCommand() {
+        MCPresenterSubCommand.loadCommands();
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String lable,
                              String[] args) {
 
-        String prefix = "[mcpresenterPlugin] ";
+        String prefix = "[MCPresenterPlugin] ";
 
         if(args.length == 0) {
-            sender.sendMessage(ChatColor.RED + prefix + "Command arguments required. Try, \"/mcpresenterPlugin help\"");
+            sender.sendMessage(ChatColor.RED + prefix + "Command arguments required. Try, \"/MCPresenterPlugin help\"");
             return true;
         }
 
-        for(mcpresenterSubCommand command : mcpresenterSubCommand.getCommands()) {
+        for(MCPresenterSubCommand command : MCPresenterSubCommand.getCommands()) {
             if(!command.getSub().equalsIgnoreCase(args[0])) {
                 continue;
             }
@@ -43,7 +42,7 @@ public class mcpresenterCommand implements CommandExecutor {
             return true;
         }
 
-        sender.sendMessage(ChatColor.RED + prefix + "Unknown Command. Try, \"/mcpresenterPlugin help\"");
+        sender.sendMessage(ChatColor.RED + prefix + "Unknown Command. Try, \"/MCPresenterPlugin help\"");
         return true;
     }
 

@@ -1,6 +1,6 @@
 package com.hipo.mcpresenter.file;
 
-import com.hipo.mcpresenter.mcpresenterPlugin;
+import com.hipo.mcpresenter.MCPresenterPlugin;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -21,7 +21,7 @@ public class PresentationLoader {
             return dataFolder;
         }
 
-        dataFolder = mcpresenterPlugin.getPlugin().getDataFolder();
+        dataFolder = MCPresenterPlugin.getPlugin().getDataFolder();
 
         if(!dataFolder.exists()) {
             dataFolder.mkdirs();

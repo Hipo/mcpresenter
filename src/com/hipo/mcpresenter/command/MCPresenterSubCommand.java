@@ -11,9 +11,9 @@ import java.util.List;
 /**
  * Created by taylan on 2016-10-04.
  */
-public abstract class mcpresenterSubCommand {
+public abstract class MCPresenterSubCommand {
 
-    private static List<mcpresenterSubCommand> commands;
+    private static List<MCPresenterSubCommand> commands;
 
     public abstract String getSub();
     public abstract String getPermission();
@@ -24,14 +24,14 @@ public abstract class mcpresenterSubCommand {
                                    String[] args, String prefix );
 
     public static void loadCommands() {
-        commands = new ArrayList<mcpresenterSubCommand>();
+        commands = new ArrayList<MCPresenterSubCommand>();
 
         commands.add(new SubCommandCreate());
         commands.add(new SubCommandRender());
 
     }
 
-    public static List<mcpresenterSubCommand> getCommands() {
+    public static List<MCPresenterSubCommand> getCommands() {
         return commands;
     }
 }
