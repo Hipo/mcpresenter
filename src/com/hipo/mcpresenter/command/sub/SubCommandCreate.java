@@ -1,17 +1,15 @@
 package com.hipo.mcpresenter.command.sub;
 
 import com.hipo.mcpresenter.Presentation;
-import com.hipo.mcpresenter.command.mcpresenterSubCommand;
+import com.hipo.mcpresenter.command.MCPresenterSubCommand;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
 
 import com.hipo.mcpresenter.file.PresentationFileException;
-import com.hipo.mcpresenter.mcpresenterPlugin;
+import com.hipo.mcpresenter.MCPresenterPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -21,7 +19,7 @@ import org.bukkit.entity.Player;
 /**
  * Created by taylan on 2016-10-04.
  */
-public class SubCommandCreate extends mcpresenterSubCommand {
+public class SubCommandCreate extends MCPresenterSubCommand {
     @Override
     public String getSub() {
         return "create";
@@ -70,7 +68,7 @@ public class SubCommandCreate extends mcpresenterSubCommand {
 //            return;
 //        }
 
-        if(mcpresenterPlugin.getPresentationByID(presentationID) != null) {
+        if(MCPresenterPlugin.getPresentationByID(presentationID) != null) {
             player.sendMessage(ChatColor.RED + prefix + "A presentation with that ID already exists.");
             return;
         }
@@ -122,7 +120,7 @@ public class SubCommandCreate extends mcpresenterSubCommand {
             return;
         }
 
-        mcpresenterPlugin.getPlugin().addPresentation(presentation);
+        MCPresenterPlugin.getPlugin().addPresentation(presentation);
 
         player.sendMessage(ChatColor.GREEN + prefix + "Presentation \"" + ChatColor.GOLD
                 + presentationID + ChatColor.GREEN + "\" created!");

@@ -1,6 +1,6 @@
 package com.hipo.mcpresenter;
 
-import com.hipo.mcpresenter.command.mcpresenterCommand;
+import com.hipo.mcpresenter.command.MCPresenterCommand;
 
 import com.hipo.mcpresenter.file.PresentationFileException;
 import com.hipo.mcpresenter.file.PresentationLoader;
@@ -15,9 +15,9 @@ import java.util.logging.Level;
 /**
  * Created by taylan on 2016-10-03.
  */
-public class mcpresenterPlugin extends JavaPlugin {
+public class MCPresenterPlugin extends JavaPlugin {
 
-    private static mcpresenterPlugin plugin;
+    private static MCPresenterPlugin plugin;
     private static Set<Presentation> presentations;
 
     @Override
@@ -29,7 +29,7 @@ public class mcpresenterPlugin extends JavaPlugin {
 
         loadPresentations();
 
-        this.getCommand("mcpresenter").setExecutor(new mcpresenterCommand());
+        this.getCommand("mcpresenter").setExecutor(new MCPresenterCommand());
     }
 
     @Override
@@ -59,7 +59,7 @@ public class mcpresenterPlugin extends JavaPlugin {
         presentations.add(presentation);
     }
 
-    public static mcpresenterPlugin getPlugin() {
+    public static MCPresenterPlugin getPlugin() {
         return plugin;
     }
 

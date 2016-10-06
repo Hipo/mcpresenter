@@ -1,9 +1,9 @@
 package com.hipo.mcpresenter.command.sub;
 
+import com.hipo.mcpresenter.MCPresenterPlugin;
 import com.hipo.mcpresenter.Presentation;
-import com.hipo.mcpresenter.command.mcpresenterSubCommand;
+import com.hipo.mcpresenter.command.MCPresenterSubCommand;
 import com.hipo.mcpresenter.file.PresentationFileException;
-import com.hipo.mcpresenter.mcpresenterPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 /**
  * Created by taylan on 2016-10-05.
  */
-public class SubCommandRender extends mcpresenterSubCommand {
+public class SubCommandRender extends MCPresenterSubCommand {
     @Override
     public String getSub() {
         return "render";
@@ -49,7 +49,7 @@ public class SubCommandRender extends mcpresenterSubCommand {
         }
 
         String presentationID = args[1];
-        Presentation presentation = mcpresenterPlugin.getPresentationByID(presentationID);
+        Presentation presentation = MCPresenterPlugin.getPresentationByID(presentationID);
 
         if (presentation == null) {
             player.sendMessage(ChatColor.RED + prefix + "No presentation found with name \"" + presentationID);
