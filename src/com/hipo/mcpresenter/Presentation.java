@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapView;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.io.File;
@@ -206,8 +207,32 @@ public class Presentation {
             throw new PresentationFileException("Unable to load image from " + url);
         }
 
-        // TODO: image needs to be resized to 1280x960 here, with aspect ratio being retained
+        int imageWidth = image.getWidth();
+        int imageHeight = image.getHeight();
+        int targetWidth = 1280;
+        int targetHeight = 1024;
+
+        // Image needs to be resized to 1280x1024 here, with aspect ratio being retained
         // If empty spaces are created around the image, these need to be filled with black color
+        if (imageWidth != targetWidth || imageHeight != targetHeight) {
+            if (imageWidth > imageHeight) {
+                targetHeight = imageHeight * targetWidth / imageWidth;
+            } else {
+                targetWidth = imageWidth * targetHeight / imageHeight;
+            }
+
+            Image scaledImage = image.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+
+            image = new BufferedImage(1280, 1024, BufferedImage.TYPE_INT_ARGB);
+
+            Graphics2D g2d = image.createGraphics();
+
+            g2d.setBackground(Color.black);
+            g2d.setColor(Color.black);
+            g2d.fillRect(0, 0, 1280, 1024);
+            g2d.drawImage(scaledImage, (1280 - targetWidth) / 2, (1024 - targetHeight) / 2, null);
+            g2d.dispose();
+        }
 
         World world = Bukkit.getWorld(worldUUID);
 
