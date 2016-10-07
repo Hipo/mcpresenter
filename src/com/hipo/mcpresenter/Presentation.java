@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +41,7 @@ public class Presentation {
     private int blockY;
     private int blockZ;
     private String blockDirection;
+    private String eTag;
 
     private File presentationFile;
 
@@ -126,6 +128,16 @@ public class Presentation {
         }
         catch (MalformedURLException ex) {
             throw new PresentationFileException("Unable to load presentation file \"" + presentationFile.getName());
+        }
+
+        this.eTag = config.getString("e_tag");
+        if(eTag == null) {
+            eTag = getCurrentETag();
+            try {
+                updateConfig();
+            } catch (IOException e) {
+                throw new PresentationFileException("Unable to load presentation file \"" + presentationFile.getName());
+            }
         }
     }
 
@@ -307,6 +319,39 @@ public class Presentation {
         }
     }
 
+    public String getCurrentETag() throws PresentationFileException {
+        try {
+            URLConnection conn = this.url.openConnection();
+            return conn.getHeaderField("Etag");
+        } catch (IOException e) {
+            throw new PresentationFileException("Couldn't get ETag");
+        }
+    }
+
+    public void renderIfImageChanged() throws PresentationFileException, IOException {
+        String currentEtag = getCurrentETag();
+        if(!eTag.equalsIgnoreCase(currentEtag)) {
+            renderImage();
+            this.eTag = currentEtag;
+            updateConfig();
+        }
+    }
+
+    public void updateConfig() throws IOException {
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(presentationFile);
+
+        config.set("presentation_id", presentationID);
+        config.set("world_id", worldUUID.toString());
+        config.set("block_x", blockX);
+        config.set("block_y", blockY);
+        config.set("block_z", blockZ);
+        config.set("direction", blockDirection);
+        config.set("url", url.toString());
+        config.set("e_tag", eTag);
+
+        config.save(presentationFile);
+    }
+
     public void save() throws IOException {
         if (presentationFile == null) {
             String filePath = PresentationLoader.getPresentationsDirectory() + "/" + presentationID + ".presentation";
@@ -317,18 +362,8 @@ public class Presentation {
                 presentationFile.createNewFile();
             }
         }
+        updateConfig();
 
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(presentationFile);
-
-        config.set("presentation_id", presentationID);
-        config.set("world_id", worldUUID.toString());
-        config.set("block_x", blockX);
-        config.set("block_y", blockY);
-        config.set("block_z", blockZ);
-        config.set("direction", blockDirection);
-        config.set("url", url.toString());
-
-        config.save(presentationFile);
     }
 
     public void delete() {

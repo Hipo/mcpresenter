@@ -21,7 +21,7 @@ public class MCPresenterPlugin extends JavaPlugin {
     private static MCPresenterPlugin plugin;
     private static Set<Presentation> presentations;
 
-    private static final long INTERVAL = 20 * 60;
+    private static final long INTERVAL = 20 * 10;
 
     @Override
     public void onEnable() {

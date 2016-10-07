@@ -6,6 +6,7 @@ import com.hipo.mcpresenter.file.PresentationFileException;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -19,8 +20,10 @@ public class RenderTask extends BukkitRunnable {
         Set<Presentation> presentations = MCPresenterPlugin.getPresentations();
         for(Presentation presentation : presentations) {
             try {
-                presentation.renderImage();
+                presentation.renderIfImageChanged();
             } catch (PresentationFileException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
