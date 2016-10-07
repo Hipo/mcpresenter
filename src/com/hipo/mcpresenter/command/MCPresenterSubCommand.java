@@ -2,6 +2,7 @@ package com.hipo.mcpresenter.command;
 
 import com.hipo.mcpresenter.command.sub.SubCommandCreate;
 
+import com.hipo.mcpresenter.command.sub.SubCommandDelete;
 import com.hipo.mcpresenter.command.sub.SubCommandRender;
 import org.bukkit.command.CommandSender;
 
@@ -28,6 +29,7 @@ public abstract class MCPresenterSubCommand {
 
         commands.add(new SubCommandCreate());
         commands.add(new SubCommandRender());
+        commands.add(new SubCommandDelete());
 
     }
 

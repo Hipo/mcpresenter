@@ -366,6 +366,63 @@ public class Presentation {
 
     }
 
+    public void removeBlocks() throws PresentationFileException {
+        World world = Bukkit.getWorld(worldUUID);
+        BlockFace blockFace = getBlockFace(blockDirection);
+
+        for (int x = 0; x < 10; x++) {
+            for (int y = 0; y < 8; y++) {
+                Location loc = null;
+
+                if(blockDirection.equalsIgnoreCase("north")) {
+                    loc = new Location(world, blockX + x, blockY - y , blockZ + 1);
+                }else if(blockDirection.equalsIgnoreCase("south")) {
+                    loc = new Location(world, blockX - x, blockY - y , blockZ - 1);
+                }else if(blockDirection.equalsIgnoreCase("east")) {
+                    loc = new Location(world, blockX - 1 , blockY - y , blockZ + x);
+                } else if(blockDirection.equalsIgnoreCase("west")) {
+                    loc = new Location(world, blockX + 1, blockY - y , blockZ - x);
+                }
+
+                if (loc == null) {
+                    throw new PresentationFileException("Unable to find location");
+                }
+
+                Collection<Entity> entities = world.getNearbyEntities(loc, 1, 1, 1);
+
+                if (entities.isEmpty()) {
+                    throw new PresentationFileException("Unable to find entities at location");
+                }
+
+                ItemFrame iFrame = null;
+
+                if (entities.size() == 1) {
+                    iFrame = (ItemFrame) entities.toArray()[0];
+                } else {
+                    for (Entity entity : entities) {
+                        if (entity.getType() != EntityType.ITEM_FRAME) {
+                            continue;
+                        }
+
+                        Location entityLoc = entity.getLocation();
+
+                        if (!entityLoc.getBlock().getLocation().equals(loc)) {
+                            continue;
+                        }
+
+                        iFrame = (ItemFrame) entity;
+                    }
+                }
+
+                if (iFrame == null) {
+                    throw new PresentationFileException("Unable to find entities at location");
+                }
+
+                iFrame.remove();
+            }
+        }
+    }
+
     public void delete() {
         if (presentationFile == null) {
             return;

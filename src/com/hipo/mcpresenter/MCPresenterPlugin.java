@@ -63,6 +63,9 @@ public class MCPresenterPlugin extends JavaPlugin {
     public static void addPresentation(Presentation presentation) {
         presentations.add(presentation);
     }
+    public static void removePresentation(Presentation presentation) {
+        presentations.remove(presentation);
+    }
 
     public static MCPresenterPlugin getPlugin() {
         return plugin;
