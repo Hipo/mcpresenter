@@ -21,6 +21,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -321,7 +322,8 @@ public class Presentation {
 
     public String getCurrentETag() throws PresentationFileException {
         try {
-            URLConnection conn = this.url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) this.url.openConnection();
+            conn.setRequestMethod("HEAD");
             return conn.getHeaderField("Etag");
         } catch (IOException e) {
             throw new PresentationFileException("Couldn't get ETag");
