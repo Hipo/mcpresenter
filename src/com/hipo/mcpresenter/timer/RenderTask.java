@@ -18,6 +18,7 @@ public class RenderTask extends BukkitRunnable {
     public void run() {
         Bukkit.getLogger().log(Level.WARNING, "[mcpresenter] Rendering images");
         Set<Presentation> presentations = MCPresenterPlugin.getPresentations();
+
         for(Presentation presentation : presentations) {
             try {
                 presentation.renderIfImageChanged();
@@ -27,5 +28,12 @@ public class RenderTask extends BukkitRunnable {
                 e.printStackTrace();
             }
         }
+
+        Runtime runtime = Runtime.getRuntime();
+
+        Bukkit.getLogger().log(Level.WARNING, "[Used / Total / Free]  " +
+                (runtime.totalMemory() - runtime.freeMemory()) / 1048576L +  " MB / " +
+                runtime.totalMemory() / 1048576L + " MB / " +
+                runtime.freeMemory() / 1048576L + " MB");
     }
 }
