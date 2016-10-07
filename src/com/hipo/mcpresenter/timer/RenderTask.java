@@ -17,7 +17,7 @@ public class RenderTask extends BukkitRunnable {
     @Override
     public void run() {
         Bukkit.getLogger().log(Level.WARNING, "[mcpresenter] Rendering images");
-        Set<Presentation> presentations = MCPresenterPlugin.getPresentations();
+        Set<Presentation> presentations = MCPresenterPlugin.getPlugin().getPresentations();
 
         for(Presentation presentation : presentations) {
             try {
